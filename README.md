@@ -1,3 +1,7 @@
+# Documentação do Assistente de Voz Alexo
+
+Este projeto é um assistente de voz simples que usa Python para executar comandos baseados em entrada de voz. Ele é capaz de realizar várias funções, como fornecer a data e hora atuais, gerenciar uma agenda, tocar música via Spotify, e fornecer cotações de moedas. Esta documentação fornece uma visão geral do funcionamento do projeto, das bibliotecas necessárias e das APIs utilizadas.
+
 ```markdown
 # Documentação do Assistente de Voz
 
@@ -162,5 +166,3 @@ Este projeto foi desenvolvido como parte de uma entrega do segundo semestre da d
 
 Agradecemos por usar este assistente de voz e esperamos que ele atenda às suas necessidades. Se tiver sugestões de melhorias ou novas funcionalidades, sinta-se à vontade para compartilhar!
 ```
-
-Se precisar de ajustes adicionais ou informações específicas, é só avisar!
