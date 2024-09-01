@@ -1,5 +1,3 @@
-Claro, vou reorganizar a documentação conforme suas instruções:
-
 ```markdown
 # Documentação do Assistente de Voz
 
