@@ -1,12 +1,13 @@
-# Documentação do Projeto de Assistente Virtual Alexo
+Claro, vou reorganizar a documentação conforme suas instruções:
 
-## Descrição
+```markdown
+# Documentação do Assistente de Voz
 
-Este projeto é um assistente virtual que usa Python para realizar diversas tarefas como agendar eventos, tocar músicas, consultar cotações e muito mais. Ele faz uso de várias bibliotecas para reconhecer comandos de voz, sintetizar fala, manipular arquivos e interagir com APIs externas.
+Posso lhe informar sobre a data, hora e previsão do tempo, contar uma piada ou curiosidade, informar a cotação do dólar, abrir o portal do aluno da FIAP, abrir o YouTube e o Spotify, tocar uma música da melhor qualidade, abrir e gerenciar sua agenda. Estarei à sua disposição para ajudar com essas funções!
 
-## Bibliotecas Necessárias
+## Requisitos
 
-Para rodar o projeto, você precisa instalar as seguintes bibliotecas Python:
+Antes de executar o código, instale as seguintes bibliotecas:
 
 ```bash
 pip install gtts
@@ -18,144 +19,150 @@ pip install pyaudio
 pip install spotipy
 ```
 
-## Funcionalidades
+## APIs Utilizadas
 
-O assistente virtual suporta as seguintes funcionalidades:
+### 1. API de Previsão do Tempo
 
-- **Previsão do Tempo**: Fornece a previsão do tempo atual.
-- **Data e Hora**: Informa a data e a hora atuais.
-- **Agenda**: Permite adicionar, remover, listar e limpar eventos da agenda.
-- **Música**: Toca e pausa músicas usando o Spotify.
-- **Cotações**: Consulta cotações de moedas e criptomoedas.
-- **Abertura de Sites**: Abre sites específicos como YouTube e o portal do aluno FIAP.
-- **Comandos de Voz**: Reconhece e executa comandos de voz.
+**Descrição**: Fornece a previsão do tempo atual para uma localização específica.
 
-## Requisitos
+**URL da API**: [OpenWeatherMap API](https://openweathermap.org/api)
 
-Certifique-se de que as seguintes bibliotecas estão instaladas:
+**Parâmetros**:
+- `q`: Nome da cidade para a qual você deseja obter a previsão do tempo.
+- `appid`: Sua chave de API para autenticação.
 
-- **gtts**: Para síntese de fala.
-- **SpeechRecognition**: Para reconhecimento de fala.
-- **pyttsx3**: Para conversão de texto em fala.
-- **requests**: Para fazer requisições HTTP.
-- **pygame**: Para manipulação de áudio (opcional, dependendo do uso).
-- **pyaudio**: Para entrada de áudio do microfone.
-- **spotipy**: Para interagir com a API do Spotify.
+**Exemplo de Código**:
+
+```python
+def previsao_tempo(cidade):
+    api_key = 'SUA_CHAVE_DE_API'
+    url = f'http://api.openweathermap.org/data/2.5/weather?q={cidade}&appid={api_key}&units=metric&lang=pt'
+    resposta = requests.get(url)
+    dados = resposta.json()
+    
+    if dados['cod'] == 200:
+        temperatura = dados['main']['temp']
+        descricao = dados['weather'][0]['description']
+        resposta = f"A previsão do tempo para {cidade} é {descricao} com temperatura de {temperatura}°C."
+    else:
+        resposta = "Não consegui obter a previsão do tempo no momento."
+
+    print(resposta)  # Debug
+    falar(resposta)
+```
+
+### 2. API de Cotação de Moedas
+
+**Descrição**: Fornece a cotação de moedas como Bitcoin, dólar e real.
+
+**URL da API**:
+- **Bitcoin**: [CoinGecko API](https://coingecko.com/api)
+- **Dólar**: [ExchangeRate-API](https://www.exchangerate-api.com/)
+- **Real**: [ExchangeRate-API](https://www.exchangerate-api.com/)
+
+**Exemplo de Código**:
+
+```python
+def cotacao(ativo):
+    if "bitcoin" in ativo:
+        url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=brl"
+        response = requests.get(url)
+        data = response.json()
+        preco = data['bitcoin']['brl']
+        resposta = f"A cotação atual do Bitcoin é {preco} BRL."
+    
+    elif "dólar" in ativo:
+        url = "https://api.exchangerate-api.com/v4/latest/USD"
+        response = requests.get(url)
+        data = response.json()
+        preco = data['rates']['BRL']
+        resposta = f"A cotação atual do dólar é {preco} BRL."
+    
+    elif "real" in ativo:
+        url = "https://api.exchangerate-api.com/v4/latest/BRL"
+        response = requests.get(url)
+        data = response.json()
+        preco = data['rates'].get('USD', 'Cotação não disponível')
+        resposta = f"1 real = {preco} USD."
+    
+    else:
+        resposta = "Desculpe, não reconheci o ativo."
+
+    print(resposta)  # Debug
+    falar(resposta)
+```
+
+### 3. API do Spotify
+
+**Descrição**: Utiliza a API do Spotify para tocar músicas de uma playlist específica.
+
+**URL da API**: [Spotify API](https://developer.spotify.com/documentation/web-api/)
+
+**Parâmetros**:
+- `playlist_id`: ID da playlist do Spotify.
+
+**Exemplo de Código**:
+
+```python
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+
+def abrir_spotify():
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id='SUA_CLIENT_ID',
+                                                   client_secret='SEU_CLIENT_SECRET',
+                                                   redirect_uri='SUA_REDIRECT_URI',
+                                                   scope='user-library-read user-read-playback-state user-modify-playback-state'))
+    sp.start_playback(context_uri='spotify:playlist:SUA_PLAYLIST_ID')
+```
 
 ## Configuração
 
-### Inicialização do Motor de Fala
+Configure a sua aplicação com as chaves de API necessárias e o Spotify Client ID e Secret. Certifique-se de ter todas as permissões e redirecionamentos configurados corretamente.
 
-O motor de fala é inicializado com `pyttsx3`, que é usado para converter texto em fala.
+## Requisitos
 
-```python
-texto_fala = pyttsx3.init()
-```
+Para executar o código, você precisa das bibliotecas listadas e das chaves de API apropriadas.
 
-### Palavras-Chave
+## Funcionamento
 
-Uma estrutura de palavras-chave é definida para reconhecer e interpretar comandos de voz.
+- **Palavra-chave**: O assistente de voz começa a ouvir comandos quando detecta a palavra-chave configurada.
+- **Manipulação de Arquivos**: A agenda é gerenciada através de leitura e escrita em arquivos.
 
-```python
-palavras_chave = {
-    'previsao do tempo': [...],
-    'data': [...],
-    ...
-}
-```
+## Funções Principais
 
-### Manipulação de Arquivos
-
-O assistente utiliza um arquivo `agenda.txt` para armazenar e gerenciar eventos.
-
-```python
-current_directory = Path().cwd()
-agenda_path = current_directory / 'agenda.txt'
-
-if not agenda_path.exists():
-    agenda_path.touch()  # Cria um arquivo vazio
-```
-
-### Funções Principais
-
-1. **Falar**: Converte texto em fala.
-    ```python
-    def falar(audio):
-        texto_fala.say(audio)
-        texto_fala.runAndWait()
-    ```
-
-2. **Adicionar Evento**: Adiciona um evento à agenda.
-    ```python
-    def adicionar_evento(evento):
-        ...
-    ```
-
-3. **Remover Evento**: Remove um evento da agenda.
-    ```python
-    def remover_evento(numero):
-        ...
-    ```
-
-4. **Limpar Agenda**: Limpa todos os eventos da agenda.
-    ```python
-    def limpar_agenda():
-        ...
-    ```
-
-5. **Listar Eventos**: Lista todos os eventos na agenda.
-    ```python
-    def listar_eventos():
-        ...
-    ```
-
-6. **Tocar Música**: Toca uma música usando a API do Spotify.
-    ```python
-    def tocar_musica():
-        ...
-    ```
-
-7. **Parar Música**: Pausa a música atual.
-    ```python
-    def parar_musica():
-        ...
-    ```
-
-8. **Consultar Cotação**: Consulta a cotação de moedas e criptomoedas.
-    ```python
-    def cotacao():
-        ...
-    ```
-
-9. **Abrir Sites**: Abre sites específicos como YouTube e o portal da FIAP.
-    ```python
-    def abrir_youtube():
-        webbrowser.open("https://www.youtube.com")
-    ```
-
-### Uso de APIs
-
-- **Spotify**: A autenticação é realizada com `spotipy` e as funções relacionadas ao Spotify incluem `abrir_spotify()`, `tocar_musica()`, e `parar_musica()`.
-- **Cotações**: As cotações são consultadas através de APIs externas usando a biblioteca `requests`.
+- **`falar(audio)`**: Configura a voz e fala o texto fornecido.
+- **`adicionar_evento(evento)`**: Adiciona um evento à agenda.
+- **`remover_evento(numero)`**: Remove um evento da agenda.
+- **`limpar_agenda()`**: Limpa todos os eventos da agenda.
+- **`listar_eventos()`**: Lista todos os eventos na agenda.
+- **`microfone()`**: Captura e reconhece comandos de voz.
+- **`ouvir_comando()`**: Processa o comando de voz recebido.
+- **`ouvir_palavra_ativacao()`**: Escuta palavras-chave para ativar o assistente.
+- **`listar_comandos()`**: Lista os comandos disponíveis para o usuário.
+- **`tempo()`**: Fornece a hora atual.
+- **`abrir_spotify()`**: Abre o Spotify.
+- **`abrir_youtube()`**: Abre o YouTube.
+- **`abrir_portal_fiap()`**: Abre o portal do aluno da FIAP.
+- **`tocar_musica()`**: Toca uma música no Spotify.
+- **`parar_musica()`**: Para a música no Spotify.
+- **`cotacao()`**: Consulta e fornece a cotação de uma moeda.
+- **`previsao_tempo()`**: Fornece a previsão do tempo.
 
 ## Execução
 
-Para iniciar o assistente, você pode usar a função `ouvir_palavra_ativacao()` para aguardar um comando de ativação e depois processar os comandos com `ouvir_comando()`.
+Execute o script principal para iniciar o assistente de voz. Ele ficará à escuta da palavra-chave e responderá aos comandos que você fornecer.
 
-```python
-def ouvir_palavra_ativacao():
-    while True:
-        comando = microfone()
-        if comando != "none":
-            if any(palavra in comando for palavra in palavras_chave['Alexo']):
-                falar("Olá, como posso ajudar?")
-                while True:
-                    ouvir_comando()
-```
+## Possíveis Melhorias
+
+- **Reconhecimento de voz mais preciso**: Melhorar o reconhecimento de voz para lidar com diferentes sotaques e ruídos.
+- **Integração com mais serviços**: Adicionar suporte a outras APIs e serviços para expandir as funcionalidades.
+- **Interface Gráfica**: Desenvolver uma interface gráfica para tornar a interação mais intuitiva.
 
 ## Considerações Finais
 
-Este assistente virtual é um exemplo de como combinar diversas tecnologias para criar um sistema de interação por voz. A configuração pode ser ajustada conforme suas necessidades, e novas funcionalidades podem ser adicionadas facilmente.
+Este projeto foi desenvolvido como parte de uma entrega do segundo semestre da disciplina de Deep Learning e IA do curso de Data Science. É um exemplo prático de como integrar diversas APIs e bibliotecas para criar um assistente de voz funcional e interativo.
 
-Para mais informações, consulte a documentação das bibliotecas usadas e ajuste as credenciais e parâmetros conforme necessário.
+Agradecemos por usar este assistente de voz e esperamos que ele atenda às suas necessidades. Se tiver sugestões de melhorias ou novas funcionalidades, sinta-se à vontade para compartilhar!
+```
 
+Se precisar de ajustes adicionais ou informações específicas, é só avisar!
